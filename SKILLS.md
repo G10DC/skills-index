@@ -35,6 +35,12 @@ Update this file whenever a skill is published, renamed, deprecated, or gets a n
 | `anchor` | OpenAPI → Express boilerplate codegen | `lib/anchor.js` | — | `strata` |
 | `alembic` | Academic text distillation into study guides | `scripts/`: `extract.py`, `chunk.py`, `merge.py`, `coverage.py` — **`scripts/`, not `lib/`** | **`scribe`** (OCR delegated, not reimplemented) | `scribe` |
 | `writing-flow` | Five writing skills: rough idea → spec → draft → handoff | `skills/`: `brief`, `scope-steps`, `prompt-eval`, `ship`, `handoff` (SKILL.md each); `lib/skill-contract.mjs` → `checkSkillContract(dir, opts)` | — | `loom` |
+| `keel` | Trust boundary, step dispatcher, tamper-evident audit log | `src/`: `trust.mjs` (`separateInstructionData(messages) -> {instructions, data}`), `dispatcher.mjs`, `provider.mjs`, `store.mjs`, `sandbox.mjs`, `agent.mjs`, `mcp.mjs`, `cli.mjs` — **`src/`, not `lib/`** | — | `warden` (documents these primitives and ships none) |
+| `almanac` | Financial seasonality & market-cycle inference | `scripts/almanac.py` plus `scripts/engine/`: `seasonality.py`, `cycles.py`, `statistics.py`, `backtest.py`, `forecaster.py`, `risk.py`, `spreads.py`, `data.py`, `reporter.py` — **`scripts/`, not `lib/`** | — | — |
+| `harvester` | Polite, schema-validated web scraping | `scripts/harvester.py` — **`scripts/`, not `lib/`** | — | `sieve` (raw/staged/curated layout convention only; no shared code) |
+| `spark` | Creative ideation & cross-domain synthesis | `spark/`: `engine.py`, `lenses.py`, `exporter.py`, `schema.py`, `skills_matrix.py`; entry point `scripts/ideate.py` | — | `loom` |
+| `yt-digest` | YouTube transcript, frame selection & digest publishing | `lib/`: `yt-digest.js`, `make_pdf.py`, `make_html_pdf.py` — **mixed JS and Python in one `lib/`** | — | `alembic` |
+| `skills-index` | This file: the canonical map of the library | **documentary** — `SKILL.md` + `SKILLS.md`; no `lib/` | — | — |
 | `portage` | Context handoff & clean agent restart | **documentary** — `SKILL.md` + `assets/` | — | `chisel`, `chronicle-session-memory` |
 
 > **None of these skills is a CLI.** No repository in this table ships a shebang, a

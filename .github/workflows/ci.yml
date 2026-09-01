@@ -4,26 +4,28 @@ on:
   push:
     branches: [main, master]
   pull_request:
+  # The index describes an organisation that changes without touching this repository:
+  # a skill published elsewhere makes this file wrong while nothing here has changed.
+  # A weekly run is what turns that from a silent drift into a red build.
+  schedule:
+    - cron: '17 6 * * 1'
 
 jobs:
-  test:
+  coverage:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Install dependencies
-        run: |
-          if [ -f package.json ]; then
-            npm install --ignore-scripts
-          else
-            echo "No package.json found, skipping npm install"
-          fi
-      - name: Run tests
-        run: |
-          if [ -f package.json ]; then
-            npm test
-          else
-            echo "No package.json found, skipping tests"
-          fi
+
+      - name: Validate SKILL.md against g10dc canon
+        run: node .github/validate-skill.mjs .
+
+      # No `|| true`. This step is the whole point of the workflow: it fails when a
+      # skill has been published without a row here, or when a row survives its
+      # repository being archived.
+      - name: SKILLS.md still describes the library that exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/coverage.mjs
