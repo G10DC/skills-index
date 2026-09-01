@@ -21,7 +21,7 @@ Update this file whenever a skill is published, renamed, deprecated, or gets a n
 |---|---|---|---|---|
 | `chisel` | In-flight context compression & pruning | `lib/`: `compress.js`, `memory.js`, `output.js`, `precision.js`, `reads.js`, `symbols.js` | — | `portage`, `chronicle-session-memory` |
 | `bonsai` | Code minimalism, YAGNI ladder enforcement | `scripts/ground.mjs` (also `run.mjs`, `guardrail.mjs`, `benchmark.mjs`) — **`scripts/`, not `lib/`** | scan primitive (see note) | `trellis` |
-| `trellis` | Dependency graph & blast-radius analysis | `lib/`: 13 modules — `extract.js` (`buildGraph`), `graph.js` (`blastRadius`, `reachability`, `stats`, `dangling`, `scc`), `ast.js`, `gate.js`, `pr.js`, … **no `cli.mjs`; not a CLI** | `acorn` (npm) | `atlas-workspace-orchestrator`, `cartographer` |
+| `trellis` | Dependency graph & blast-radius analysis | `lib/`: 13 modules — `extract.js` (`buildGraph`), `graph.js` (`blastRadius`, `reachability`, `stats`, `dangling`, `scc`), `ast.js`, `gate.js`, `pr.js`, … **no `cli.mjs`; not a CLI** | `acorn` (npm) | `cartographer` |
 | `loom` | Phase-gate workflow state machine | `lib/engine.js` (`createRun(intent, opts)`, `advance`, `runToCompletion`, `serialize`) + `phases.js`, `gates.js`, `adapters.js`, `budget.js`, `checkpoint.js`, `store.js`, `ux.js` | — | `shipwright`, `portage` |
 | `warden` | Trust boundary, prompt-injection defense, audit hash-chain | **documentary** — `SKILL.md` + `docs/`, `refs/`; no `lib/` | — | `sentinel-egress-guard` (outbound counterpart) |
 | `siege` | Authorized, sandboxed penetration testing | `lib/recon.js` | — | `mirror`, `lookout` |
@@ -34,6 +34,7 @@ Update this file whenever a skill is published, renamed, deprecated, or gets a n
 | `lookout` | Dependency security & license audit | `lib/lookout.js` → `LookoutAuditor#auditPackageJson` | — | `mirror`, `siege` |
 | `anchor` | OpenAPI → Express boilerplate codegen | `lib/anchor.js` | — | `strata` |
 | `alembic` | Academic text distillation into study guides | `scripts/`: `extract.py`, `chunk.py`, `merge.py`, `coverage.py` — **`scripts/`, not `lib/`** | **`scribe`** (OCR delegated, not reimplemented) | `scribe` |
+| `writing-flow` | Five writing skills: rough idea → spec → draft → handoff | `skills/`: `brief`, `scope-steps`, `prompt-eval`, `ship`, `handoff` (SKILL.md each); `lib/skill-contract.mjs` → `checkSkillContract(dir, opts)` | — | `loom` |
 | `portage` | Context handoff & clean agent restart | **documentary** — `SKILL.md` + `assets/` | — | `chisel`, `chronicle-session-memory` |
 
 > **None of these skills is a CLI.** No repository in this table ships a shebang, a
@@ -51,18 +52,13 @@ Update this file whenever a skill is published, renamed, deprecated, or gets a n
 
 | repo | role | entry module (verified) | consumed by |
 |---|---|---|---|
-| `prism-llm-router` | LLM gateway, load balancer, circuit breaker | `lib/prism.js` | all skills, via `artisan-chat` entry point |
 | `chronicle-session-memory` | Session checkpointing & state hashing | `lib/chronicle.js` | `portage`, `loom` |
-| `artisan-chat` | Agent persona, chat style, accents | `lib/artisan-chat.js` | entry point for all skills |
 | `artisan` | Pedagogical layout & HTML/Katex rendering | `lib/`: `artisan.js`, `srs.js`, `tts.js` | `alembic`, reporting flows |
 | `tombstone` | Dead-code AST analysis | `lib/tombstone.js` → `TombstoneHunter#findDeadCodeCandidates(trellisIndex)` | `trellis`, `smith-ast-codemod` |
 | `schema-lineage` | SQL parsing & data lineage mapping | `lib/schema-lineage.js` | `sieve` |
-| `prism-search` | Hybrid AST + Vector RAG codebase search | `lib/prism-search.js` | `bonsai`, `git-researcher` |
 | `strata` | Cross-service RPC/gRPC contract topology | `lib/strata.js` | `anchor` |
 | `archaeologist` | Zero-checkout Git history / temporal coupling mining | `lib/archaeologist.js` → `ArchaeologistAnalyzer#analyzeGitHistory(dir, limit)` | `trellis`, `pulse` |
-| `hydra` | Map-reduce summarizer for ultra-large repos | `lib/hydra.js` | `cartographer`, `alembic` |
-| `git-researcher` | Automated repo discovery via agent cascades | no `lib/` | `prism-search` |
-| `atlas-workspace-orchestrator` | Multi-repo/monorepo dependency crawling | `lib/atlas.js` | `trellis` |
+| `git-researcher` | Automated repo discovery via agent cascades | `src/` (no `lib/`) | — |
 | `forge-mutation-tester` | Mutation testing / test-suite strength | `lib/forge.js` → `runMutationTests(sourceFile, testCommand)` — **first argument is a file, not a directory** | `pulse` |
 | `smith-ast-codemod` | AST-based refactoring engine | `lib/smith.js` | `trellis`, `tombstone`, `bonsai` |
 | `shipwright` | Repo scaffolding, Husky/Commitlint/ESLint hooks | `lib/shipwright.js` → `validateCommitMessage`, `runSafetyCheck`, `generateBoilerplate`, … | `loom` |
@@ -79,9 +75,9 @@ Update this file whenever a skill is published, renamed, deprecated, or gets a n
 These pairs share an axis of overlap and need an explicit `When NOT to use` line in **both**
 directions once their `SKILL.md` files are next touched:
 
-- `trellis` ↔ `atlas-workspace-orchestrator` ↔ `cartographer` — same underlying dependency graph
-  at three different scopes (file / workspace / diagram render). `cartographer` should consume
-  `trellis index` output rather than parsing independently.
+- `trellis` ↔ `cartographer` — same underlying dependency graph at two different scopes
+  (file / diagram render). `cartographer` should consume `trellis index` output rather than
+  parsing independently.
 - `warden` ↔ `sentinel-egress-guard` — trust boundary in vs. out. Complementary, not overlapping,
   but undocumented as such.
 - `sieve` ↔ `schema-lineage` — data pipeline vs. data lineage. Adjacent domain, distinct golden
@@ -91,6 +87,22 @@ directions once their `SKILL.md` files are next touched:
   direction; same treatment as `sieve`/`schema-lineage` above.
 
 ## Changelog
+
+- **2026-09-01**: removed five repositories from the Infrastructure table —
+  `prism-llm-router`, `atlas-workspace-orchestrator`, `prism-search`, `hydra` and
+  `artisan-chat`, all archived on GitHub. Four were retired on 2026-08-31 as covered by
+  `Grep`, `trellis` and the shell. An index that lists an archived repository as a live
+  dependency is worse than an index with a hole in it: a reader checking for overlap
+  against `prism-search` finds a design constraint that no longer exists. Their inbound
+  cross-references went with them — `trellis`'s see-also, `git-researcher`'s consumer, and
+  the `trellis ↔ atlas ↔ cartographer` debt item, now a pair.
+  Added `writing-flow`, published the same day.
+
+  **Not fixed here, and worth stating rather than leaving to be discovered:** this file
+  claims to be canonical and is not complete. `keel`, `almanac`, `harvester`, `spark`,
+  `yt-digest`, `strata`, `siege` and others are either missing or appear only as a
+  dependency of something else. The primitives column carries a date for exactly this
+  reason; the coverage does not, and should.
 
 - **2026-08-24**: realigned every `exposed primitives` entry with the code. Nine of sixteen
   Agent Skills listed primitives that do not exist — `mirror` was documented as `security.js`
